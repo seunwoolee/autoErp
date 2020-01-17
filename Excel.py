@@ -1,4 +1,5 @@
 import openpyxl
+from openpyxl import Workbook
 
 
 class Excel:
@@ -10,8 +11,10 @@ class Excel:
         print(company_selected, date_GL_selected, type(date_GL_selected))
 
     def init_data(self) -> list:
-        wb = openpyxl.load_workbook('authErp.xlsx')  # productOrder.xlsx 파일을 열어서 wb 변수에 할당
-        sheet1 = wb['Sheet1']  # 엑셀의 Sheet1을 open
+        wb: Workbook = openpyxl.load_workbook('authErp.xlsx')  # productOrder.xlsx 파일을 열어서 wb 변수에 할당
+        sheet1 = wb.active
+        sheet1['A10'] = 'tt'
+        wb.save('authErp.xlsx')
         return sheet1['A2':'D8']  # sheet1의 A3부터 L310까지 rows 변수에 할당
 
     def print_status(self):
