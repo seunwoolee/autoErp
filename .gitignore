@@ -1,2 +1,15 @@
 .idea/
 venv/
+/build/Main/Analysis-00.toc
+/dist/authErp.xlsx
+/build/Main/base_library.zip
+/build/Main/EXE-00.toc
+/dist/Main.exe
+/build/Main/Main.exe.manifest
+/Main.spec
+/build/Main/PKG-00.pkg
+/build/Main/PKG-00.toc
+/build/Main/PYZ-00.pyz
+/build/Main/PYZ-00.toc
+/build/Main/warn-Main.txt
+/build/Main/xref-Main.html

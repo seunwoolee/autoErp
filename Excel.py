@@ -1,24 +1,20 @@
 import openpyxl
 from openpyxl import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 
 class Excel:
     def __init__(self):
-        self.print_status()
-        company_selected = self.input_company()
-        date_GL_selected = self.input_date_GL()
+        self.wb: Workbook = openpyxl.load_workbook('authErp.xlsx')
 
-        print(company_selected, date_GL_selected, type(date_GL_selected))
+    def save_data(self, company_selected: str, date_GL: str) -> None:
+        sheet1: Worksheet = self.wb.active
+        company_selected = int(company_selected) + 1
+        sheet1[f'C{company_selected}'] = date_GL
+        self.wb.save('authErp.xlsx')
 
-    def init_data(self) -> list:
-        wb: Workbook = openpyxl.load_workbook('authErp.xlsx')  # productOrder.xlsx 파일을 열어서 wb 변수에 할당
-        sheet1 = wb.active
-        sheet1['A10'] = 'tt'
-        wb.save('authErp.xlsx')
-        return sheet1['A2':'D8']  # sheet1의 A3부터 L310까지 rows 변수에 할당
-
-    def print_status(self):
-        rows = self.init_data()
+    def print_status(self) -> None:
+        rows = self.wb['Sheet1']['A2':'D8']
         for i, row in enumerate(rows):
             print(f'{i + 1}번 {row[0].value}({row[1].value}) 금액:{row[3].value:,} 마지막 G/L 일자 : {row[2].value}')
 
@@ -37,6 +33,10 @@ class Excel:
             return date_GL_selected
 
         return self.input_date_GL()
+
+    def get_selected_sheet(self, company_selected: str) -> Worksheet:
+        sheet = self.wb['Sheet1']
+        return sheet[int(company_selected)+1]
 
 
 if __name__ == "__main__":
