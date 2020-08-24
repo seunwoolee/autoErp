@@ -14,7 +14,7 @@ class Excel:
         self.wb.save('authErp.xlsx')
 
     def print_status(self) -> None:
-        rows = self.wb['Sheet1']['A2':'D8']
+        rows = self.wb['Sheet1']['A2':'D15']
         for i, row in enumerate(rows):
             print(f'{i + 1}번 {row[0].value}({row[1].value}) 금액:{row[3].value:,} 마지막 G/L 일자 : {row[2].value}')
 

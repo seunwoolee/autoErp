@@ -1,9 +1,10 @@
 import pickle
+import time
 from time import sleep
 
 from selenium import webdriver
 from bs4 import BeautifulSoup
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
@@ -22,15 +23,31 @@ class ERP:
         self.main_iframe_id = '#e1menuAppIframe'
 
     def login(self):
+        MAX_WAIT = 5
+        start_time = time.time()
         self.chrome.get(self.url)
-        self.wait_until_element_clicked('#mainLoginTable > tbody > tr:nth-child(8) > td > input')
-        self.chrome.find_element_by_id('User').send_keys('swl21803')
-        self.chrome.find_element_by_id('Password').send_keys('tmddn132!')
-        self.chrome.find_element_by_xpath('//*[@id="mainLoginTable"]/tbody/tr[7]/td/input').click()
+        while True:
+            try:
+                login_button: WebElement = self.chrome.find_element_by_xpath('//*[@id="mainLoginTable"]/tbody/tr[7]/td/input')
+                assert login_button.get_attribute('value'), "Sign In"
+                self.chrome.find_element_by_id('User').send_keys('swl21803')
+                # self.chrome.find_element_by_id('Password').send_keys('tmddn132!')
+                self.chrome.find_element_by_id('Password').send_keys('kcfeed12!')
+                self.chrome.find_element_by_xpath('//*[@id="mainLoginTable"]/tbody/tr[7]/td/input').click()
+                return
+            except (AssertionError, WebDriverException, TimeoutException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
+
+        # self.chrome.get(self.url)
+        # self.wait_until_element_clicked('#mainLoginTable > tbody > tr:nth-child(8) > td > input')
+        # self.chrome.find_element_by_id('User').send_keys('swl21803')
+        # self.chrome.find_element_by_id('Password').send_keys('tmddn132!')
+        # self.chrome.find_element_by_xpath('//*[@id="mainLoginTable"]/tbody/tr[7]/td/input').click()
 
     def wait_until_element_clicked(self, css_selector: str):
         try:
-            print("##기다림 시작")
             WebDriverWait(self.chrome, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, css_selector)))
         except TimeoutException:
             print('## 기다리다가 지친다')
@@ -45,7 +62,7 @@ class ERP:
         self.chrome.switch_to_frame(sub_frame)
 
     def go_to_P0411(self):
-        sleep(0.2)
+        sleep(0.3)
         self.wait_until_element_clicked(self.main_iframe_id)
         self.go_to_main_iframe()
         self.go_to_sub_iframe('#wcFrame10')
@@ -73,12 +90,13 @@ class ERP:
         self.set_value(css_selector_company, 1)
         self.set_value(css_selector_supply_number, sheet[1].value)
         self.set_value(css_selector_GL, sheet[2].value)
-        self.set_value(css_selector_price, sheet[3].value)
         self.set_value(css_selector_bigo, sheet[10].value)
+        sleep(0.3)
+        self.set_value(css_selector_price, sheet[3].value)
         self.set_value(css_selector_GL_code, sheet[4].value)
         self.set_value(css_selector_VAT_type, sheet[5].value)
         self.set_value(css_selector_VAT_type2, sheet[6].value)
-        self.ok_button_db_click(css_selector_ok_button)
+        self.ok_button_three_click(css_selector_ok_button)
 
     def set_next_P0411_value(self, sheet: Worksheet):
         sleep(1)
@@ -99,7 +117,15 @@ class ERP:
 
     def ok_button_db_click(self, css_selector: str):
         self.chrome.find_element_by_css_selector(css_selector).click()
-        sleep(0.1)
+        sleep(0.2)
+        self.chrome.find_element_by_css_selector(css_selector).click()
+
+    def ok_button_three_click(self, css_selector: str):
+        """ 채무전표에서 db_click 으로 안될때 한번 더 클릭"""
+        self.chrome.find_element_by_css_selector(css_selector).click()
+        sleep(0.2)
+        self.chrome.find_element_by_css_selector(css_selector).click()
+        sleep(0.2)
         self.chrome.find_element_by_css_selector(css_selector).click()
 
 
